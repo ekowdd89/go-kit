@@ -1,0 +1,38 @@
+# volumes:
+#   go-mod:
+#   go-build:
+
+services:
+  kafka_topic:
+    image: bitnami/kafka
+    restart: on-failure
+    depends_on:
+      kafka:
+        condition: service_started
+    entrypoint: [bash, -c]
+    command:
+      - |
+        kafka-topics.sh --bootstrap-server kafka:9092 --topic author --create
+        kafka-console-consumer.sh --bootstrap-server kafka:9092 --topic author
+  author:
+    build:
+      target: ${AUTHOR_DOCKERFILE_TARGET:-base}
+    depends_on:
+      postgres:
+        condition: service_started
+      kafka:
+        condition: service_started
+    restart: unless-stopped
+    environment:
+      DB_URL: postgres://postgres:postgres@postgres:5432/testing
+      KAFKA_BROKERS: kafka:9092
+      APP_LISTEN: 8443
+    ports:
+      - 8443:8443
+    volumes:
+      - go-mod:/go/pkg/mod
+      - go-build:/tmp/go-build
+      - .:/app
+    working_dir: /app
+    networks:
+      - tracing
