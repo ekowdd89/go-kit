@@ -5,13 +5,15 @@ import (
 	"database/sql"
 	"errors"
 	"fmt"
-
+	_ "github.com/lib/pq"
+	"github.com/ekowdd89/go-kit/internals/db/author"
 	"github.com/ekowdd89/go-kit/internals/db/sqlc"
 	"github.com/uptrace/opentelemetry-go-extra/otelsql"
 	"go.opentelemetry.io/otel"
 	"go.opentelemetry.io/otel/trace"
 )
 
+var _ author.AuthorContract = &Postgres{}
 
 type OptsFunc func(*Postgres) error
 
@@ -30,6 +32,7 @@ func WithTracer(name string) OptsFunc {
 		return
 	}
 }
+
 
 type Postgres struct {
 	dbUrl string

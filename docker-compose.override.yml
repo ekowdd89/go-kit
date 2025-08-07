@@ -24,7 +24,7 @@ services:
         condition: service_started
     restart: unless-stopped
     environment:
-      DB_URL: postgres://postgres:postgres@postgres:5432/testing
+      DB_URL: postgres://testing:testing@postgres:5432/testing?sslmode=disable
       KAFKA_BROKERS: kafka:9092
       APP_LISTEN: 8443
     ports:

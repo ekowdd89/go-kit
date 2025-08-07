@@ -22,10 +22,12 @@ services:
       - POSTGRES_PASSWORD=testing
       - POSTGRES_DB=testing
     ports:
-      - 5434:5434
+      - "5434:5432"
     volumes:
       - postgres_data:/var/lib/postgresql/data
       - ./internals/db/schema.sql:/docker-entrypoint-initdb.d/schema.sql:ro
+    networks:
+      - tracing
   kafka:
     image: bitnami/kafka
     restart: unless-stopped
