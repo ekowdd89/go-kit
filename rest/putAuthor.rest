@@ -1,0 +1,6 @@
+PUT http://localhost:8443/author/3
+Content-Type: application/json
+
+{
+    "name": "eko"
+}

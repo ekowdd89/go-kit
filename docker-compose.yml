@@ -101,10 +101,12 @@ services:
     logging: *default-logging
   tempo:
     image: grafana/tempo:2.4.1
+    container_name: tempo
     command: ["-config.file=/etc/tempo/tempo.yml"]
     ports:
       - "4317:4317"
       - "4318:4318"
+      - "3200:3200"
     volumes:
       - ./config/tempo:/etc/tempo
     networks:
@@ -112,9 +114,13 @@ services:
     logging: *default-logging
   otel-collector:
     image: otel/opentelemetry-collector-contrib:0.96.0
+    container_name: otel-collector
     command: ["--config=/etc/otel-collector.yaml"]
     volumes:
-      - ./config/otel-collector.yaml:/etc/otel
+      - ./config/otel-collector.yaml:/etc/otel-collector.yaml
+    ports:
+      - 55680:4317 # ganti port host
+      - 55681:4318
     networks:
       - tracing
   log-generator:

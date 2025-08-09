@@ -9,7 +9,7 @@ import (
 
 	"github.com/ekowdd89/go-kit/internals/db"
 	"github.com/ekowdd89/go-kit/pkg/httpserver"
-	otelwrap "github.com/ekowdd89/go-kit/pkg/otel"
+	otelwrap "github.com/ekowdd89/go-kit/internals/otel"
 )
 
 func main(){
@@ -29,8 +29,9 @@ func main(){
 	h, err:= httpserver.New(
 		httpserver.WithListener(l),
 		httpserver.WithAuthorContract(
-			otelwrap.NewAuthorContract(p, otelwrap.Tracer, "author"),
+			otelwrap.NewAuthorContractWrapper(p, otelwrap.Tracer, "author"),
 		),
+		httpserver.WithTracer("main httpserver"),
 	)
 	if err !=nil {
 		h.Close(context.Background())

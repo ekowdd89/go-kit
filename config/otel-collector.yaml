@@ -2,7 +2,9 @@ receivers:
   otlp:
     protocols:
       grpc:
+        endpoint: 0.0.0.0:4317
       http:
+        endpoint: 0.0.0.0:4318
 
 exporters:
   logging:
@@ -13,7 +15,13 @@ exporters:
       insecure: true
   loki:
     endpoint: http://loki:3100/loki/api/v1/push
+
+service:
   pipelines:
+    logs:
+      receivers: [otlp]
+      processors: []
+      exporters: [loki]   # kirim log ke Loki
     traces:
       receivers: [otlp]
-      exporters: [otlp, logging, loki]
+      exporters: [otlp, logging]

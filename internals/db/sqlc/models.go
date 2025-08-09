@@ -12,3 +12,9 @@ type Author struct {
 	ID   int32
 	Name sql.NullString
 }
+
+type Todo struct {
+	ID        int32
+	Title     sql.NullString
+	Completed sql.NullBool
+}

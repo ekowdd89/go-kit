@@ -5,6 +5,7 @@ package otel
 
 import (
 	"context"
+	"database/sql"
 	"github.com/ekowdd89/go-kit/internals/db/author"
 	"github.com/ekowdd89/go-kit/internals/db/sqlc"
 	"go.opentelemetry.io/otel/codes"
@@ -33,6 +34,58 @@ func (w *AuthorContractWrapper) FetchAll(ct context.Context) (a []sqlc.Author, e
 	defer span.End()
 
 	a, err = w.AuthorContract.FetchAll(ct)
+	if err != nil {
+		span.RecordError(err)
+		span.SetStatus(codes.Error, err.Error())
+	}
+	return a, err
+}
+
+// FetchById ...
+func (w *AuthorContractWrapper) FetchById(ctx context.Context, id int64) (a sqlc.Author, err error) {
+	ctx, span := w.tracer.Start(ctx, w.prefix+"FetchById")
+	defer span.End()
+
+	a, err = w.AuthorContract.FetchById(ctx, id)
+	if err != nil {
+		span.RecordError(err)
+		span.SetStatus(codes.Error, err.Error())
+	}
+	return a, err
+}
+
+// Create ...
+func (w *AuthorContractWrapper) Create(ctx context.Context, name sql.NullString) (a sqlc.Author, err error) {
+	ctx, span := w.tracer.Start(ctx, w.prefix+"Create")
+	defer span.End()
+
+	a, err = w.AuthorContract.Create(ctx, name)
+	if err != nil {
+		span.RecordError(err)
+		span.SetStatus(codes.Error, err.Error())
+	}
+	return a, err
+}
+
+// Update ...
+func (w *AuthorContractWrapper) Update(ctx context.Context, request sqlc.UpdateAuthorParams) (a sqlc.Author, err error) {
+	ctx, span := w.tracer.Start(ctx, w.prefix+"Update")
+	defer span.End()
+
+	a, err = w.AuthorContract.Update(ctx, request)
+	if err != nil {
+		span.RecordError(err)
+		span.SetStatus(codes.Error, err.Error())
+	}
+	return a, err
+}
+
+// Delete ...
+func (w *AuthorContractWrapper) Delete(ctx context.Context, id int64) (a sqlc.Author, err error) {
+	ctx, span := w.tracer.Start(ctx, w.prefix+"Delete")
+	defer span.End()
+
+	a, err = w.AuthorContract.Delete(ctx, id)
 	if err != nil {
 		span.RecordError(err)
 		span.SetStatus(codes.Error, err.Error())

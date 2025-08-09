@@ -7,7 +7,68 @@ package sqlc
 
 import (
 	"context"
+	"database/sql"
 )
+
+const createAuthor = `-- name: CreateAuthor :one
+INSERT INTO author (name) VALUES ($1) RETURNING id, name
+`
+
+func (q *Queries) CreateAuthor(ctx context.Context, name sql.NullString) (Author, error) {
+	row := q.db.QueryRowContext(ctx, createAuthor, name)
+	var i Author
+	err := row.Scan(&i.ID, &i.Name)
+	return i, err
+}
+
+const createTodo = `-- name: CreateTodo :one
+INSERT INTO todos (title, completed) VALUES ($1, $2) RETURNING id, title, completed
+`
+
+type CreateTodoParams struct {
+	Title     sql.NullString
+	Completed sql.NullBool
+}
+
+func (q *Queries) CreateTodo(ctx context.Context, arg CreateTodoParams) (Todo, error) {
+	row := q.db.QueryRowContext(ctx, createTodo, arg.Title, arg.Completed)
+	var i Todo
+	err := row.Scan(&i.ID, &i.Title, &i.Completed)
+	return i, err
+}
+
+const deleteAuthor = `-- name: DeleteAuthor :one
+DELETE FROM author WHERE id = $1 RETURNING id, name
+`
+
+func (q *Queries) DeleteAuthor(ctx context.Context, id int32) (Author, error) {
+	row := q.db.QueryRowContext(ctx, deleteAuthor, id)
+	var i Author
+	err := row.Scan(&i.ID, &i.Name)
+	return i, err
+}
+
+const deleteTodo = `-- name: DeleteTodo :one
+DELETE FROM todos WHERE id = $1 RETURNING id, title, completed
+`
+
+func (q *Queries) DeleteTodo(ctx context.Context, id int32) (Todo, error) {
+	row := q.db.QueryRowContext(ctx, deleteTodo, id)
+	var i Todo
+	err := row.Scan(&i.ID, &i.Title, &i.Completed)
+	return i, err
+}
+
+const fetchAuthor = `-- name: FetchAuthor :one
+SELECT id, name FROM author WHERE id = $1
+`
+
+func (q *Queries) FetchAuthor(ctx context.Context, id int32) (Author, error) {
+	row := q.db.QueryRowContext(ctx, fetchAuthor, id)
+	var i Author
+	err := row.Scan(&i.ID, &i.Name)
+	return i, err
+}
 
 const fetchAuthors = `-- name: FetchAuthors :many
 SELECT id, name FROM author
@@ -34,4 +95,75 @@ func (q *Queries) FetchAuthors(ctx context.Context) ([]Author, error) {
 		return nil, err
 	}
 	return items, nil
+}
+
+const fetchTodo = `-- name: FetchTodo :one
+SELECT id, title, completed FROM todos WHERE id = $1
+`
+
+func (q *Queries) FetchTodo(ctx context.Context, id int32) (Todo, error) {
+	row := q.db.QueryRowContext(ctx, fetchTodo, id)
+	var i Todo
+	err := row.Scan(&i.ID, &i.Title, &i.Completed)
+	return i, err
+}
+
+const fetchTodos = `-- name: FetchTodos :many
+SELECT id, title, completed FROM todos
+`
+
+func (q *Queries) FetchTodos(ctx context.Context) ([]Todo, error) {
+	rows, err := q.db.QueryContext(ctx, fetchTodos)
+	if err != nil {
+		return nil, err
+	}
+	defer rows.Close()
+	var items []Todo
+	for rows.Next() {
+		var i Todo
+		if err := rows.Scan(&i.ID, &i.Title, &i.Completed); err != nil {
+			return nil, err
+		}
+		items = append(items, i)
+	}
+	if err := rows.Close(); err != nil {
+		return nil, err
+	}
+	if err := rows.Err(); err != nil {
+		return nil, err
+	}
+	return items, nil
+}
+
+const updateAuthor = `-- name: UpdateAuthor :one
+UPDATE author SET name = $1 WHERE id = $2 RETURNING id, name
+`
+
+type UpdateAuthorParams struct {
+	Name sql.NullString
+	ID   int32
+}
+
+func (q *Queries) UpdateAuthor(ctx context.Context, arg UpdateAuthorParams) (Author, error) {
+	row := q.db.QueryRowContext(ctx, updateAuthor, arg.Name, arg.ID)
+	var i Author
+	err := row.Scan(&i.ID, &i.Name)
+	return i, err
+}
+
+const updateTodo = `-- name: UpdateTodo :one
+UPDATE todos SET title = $1, completed = $2 WHERE id = $3 RETURNING id, title, completed
+`
+
+type UpdateTodoParams struct {
+	Title     sql.NullString
+	Completed sql.NullBool
+	ID        int32
+}
+
+func (q *Queries) UpdateTodo(ctx context.Context, arg UpdateTodoParams) (Todo, error) {
+	row := q.db.QueryRowContext(ctx, updateTodo, arg.Title, arg.Completed, arg.ID)
+	var i Todo
+	err := row.Scan(&i.ID, &i.Title, &i.Completed)
+	return i, err
 }

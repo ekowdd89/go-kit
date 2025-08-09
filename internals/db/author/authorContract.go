@@ -3,6 +3,7 @@ package author
 import (
 	// "io"
 	"context"
+	"database/sql"
 
 	"github.com/ekowdd89/go-kit/internals/db/sqlc"
 )
@@ -12,10 +13,10 @@ import (
 type AuthorContract interface {
 	// io.Closer
 	FetchAll(ct context.Context)([]sqlc.Author, error)
-	// FetchById(int64) (Author, error)
-	// Create(AuthorRequest) (Author, error)
-	// Update(AuthorUpdateRequest) (Author, error)
-	// Delete(AuthorDeleteRequest) (Author, error)
+	FetchById(ctx context.Context, id int64) (sqlc.Author, error)
+	Create(ctx context.Context, name sql.NullString) (sqlc.Author, error)
+	Update(ctx context.Context, request sqlc.UpdateAuthorParams) (sqlc.Author, error)
+	Delete(ctx context.Context, id int64) (sqlc.Author, error)
 }
 
 type Author struct {
@@ -24,11 +25,11 @@ type Author struct {
 }
 
 type AuthorRequest struct {
-	Name string
+	Name string `json:"name"`
 }
 type AuthorUpdateRequest struct {
-	Id int64
-	Name string
+	Id int64 `json:"id"`
+	Name string `json:"name"`
 }
 
 type AuthorDeleteRequest struct {

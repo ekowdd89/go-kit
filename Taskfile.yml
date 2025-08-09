@@ -2,11 +2,21 @@
 
 version: '3'
 
-vars:
-  GREETING: Hello, World!
 
 tasks:
-  default:
+  otelwrapper:
     cmds:
-      - echo "{{.GREETING}}"
+      - go generate ./... ## install go install github.com/QuangTung97/otelwrap@latest terlebih dahulu
+    silent: true
+  sqlc:
+    cmds:
+      - sqlc generate --file ./internals/db/sqlc.yaml
+    silent: true
+  down:
+    cmds:
+      - docker compose down --volumes
+    silent: true
+  up:
+    cmds:
+      - go mod tidy && docker compose up --build -d
     silent: true

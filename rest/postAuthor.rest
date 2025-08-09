@@ -1,0 +1,6 @@
+POST http://localhost:8443/author
+Content-Type: application/json
+
+{
+    "name": "eko"
+}
