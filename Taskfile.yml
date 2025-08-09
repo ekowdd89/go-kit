@@ -6,7 +6,7 @@ version: '3'
 tasks:
   otelwrapper:
     cmds:
-      - go generate ./... ## install go install github.com/QuangTung97/otelwrap@latest terlebih dahulu
+      - go install github.com/QuangTung97/otelwrap@latest && go generate ./... ## install go install github.com/QuangTung97/otelwrap@latest terlebih dahulu
     silent: true
   sqlc:
     cmds:
